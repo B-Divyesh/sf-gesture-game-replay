@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#f7f0df" />
     <meta name="description" content="Record landmark traces, replay gestures, and compare deterministic rules without retaining video." />
     <title>Gesture Replay Kit — tune gestures without keeping video</title>
+    <link rel="canonical" href="https://gesture-game-replay.sociobot.in/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href="/assets/fonts/atkinson-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/assets/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin />
@@ -71,10 +72,12 @@
             </div>
           </div>
           <p id="bridge-help" class="bridge-help">Bridge accepts local <code>gesture-replay:frame</code> window messages from your detector. <button id="bridge-code-button" class="text-button" type="button">Show code</button></p>
-          <pre id="bridge-code" class="code-card" hidden><code>window.postMessage({
+          <pre id="bridge-code" class="code-card" hidden><code>const viewer = window.open('https://gesture-game-replay.sociobot.in');
+// After pressing “Record bridge” in the viewer:
+viewer.postMessage({
   type: 'gesture-replay:frame',
   frame: { timestamp: performance.now(), pose: results.poseLandmarks }
-}, location.origin);</code></pre>
+}, 'https://gesture-game-replay.sociobot.in');</code></pre>
 
           <div id="empty-state" class="empty-state">
             <div class="empty-figure" aria-hidden="true"><i></i><b></b><span></span></div>
@@ -140,8 +143,8 @@
                 </div>
               </fieldset>
             </div>
-            <div class="timeline-wrap">
-              <canvas id="timeline-canvas" width="1120" height="230" role="img" aria-describedby="timeline-description"></canvas>
+            <div class="timeline-wrap" tabindex="0" aria-label="Scrollable rule comparison timeline">
+              <canvas id="timeline-canvas" width="1120" height="230" role="img" aria-label="Confidence and gesture rule comparison timeline" aria-describedby="timeline-description"></canvas>
               <p id="timeline-description" class="timeline-description">Confidence, rule A, rule B, and disagreement tracks over the duration of the loaded fixture.</p>
             </div>
           </div>

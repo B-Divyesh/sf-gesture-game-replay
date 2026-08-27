@@ -31,15 +31,28 @@
     "typecheck": "tsc --noEmit",
     "prepack": "npm run build:lib"
   },
-  "keywords": ["gesture", "mediapipe", "landmarks", "replay", "testing", "privacy"],
+  "keywords": [
+    "gesture",
+    "mediapipe",
+    "landmarks",
+    "replay",
+    "testing",
+    "privacy"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/B-Divyesh/sf-gesture-game-replay.git"
   },
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
+  "overrides": {
+    "esbuild": "^0.28.1"
+  },
   "devDependencies": {
     "@types/node": "^22.15.0",
+    "axe-core": "^4.13.0",
     "jsdom": "^26.1.0",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",

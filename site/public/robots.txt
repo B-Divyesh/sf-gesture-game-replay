@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://gesture-game-replay.sociobot.in/sitemap.xml

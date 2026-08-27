@@ -347,7 +347,7 @@ recordButton.addEventListener('click', () => {
   }
 });
 window.addEventListener('message', (event: MessageEvent<unknown>) => {
-  if (!recorder || event.source !== window || event.origin !== location.origin || typeof event.data !== 'object' || event.data === null) return;
+  if (!recorder || typeof event.data !== 'object' || event.data === null) return;
   const message = event.data as { type?: unknown; frame?: unknown };
   if (message.type !== 'gesture-replay:frame' || typeof message.frame !== 'object' || message.frame === null) return;
   try { recorder.addFrame(message.frame as RecorderFrame); recordedFrames += 1; setStatus(`Recording landmarks… ${recordedFrames} frames captured.`); }
