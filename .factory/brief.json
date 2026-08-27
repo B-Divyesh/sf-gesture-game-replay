@@ -1,0 +1,11 @@
+{
+  "slug": "gesture-game-replay",
+  "title": "Gesture Replay Kit",
+  "territory": "games-creative",
+  "user": "Indie game and classroom-toy makers using a webcam as input who need to tune a gesture game from recorded landmark traces without retaining children's or players' video.",
+  "smallest_useful_product": "NPM library and local viewer that records only timestamped pose/hand landmarks, replays them at chosen speed, compares gesture rules, and exports a scrubbed fixture.",
+  "success_measure": "Teams can reproduce 90% of reported false-positive/false-negative gestures from a landmark fixture without asking for the original video.",
+  "artifact_class": "library-npm",
+  "monetization": "freemium",
+  "constraints": "Never retain video by default; landmark data may still be biometric and needs consent/deletion controls; no age estimation or face identification."
+}
