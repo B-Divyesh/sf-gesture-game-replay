@@ -1,4 +1,30 @@
-# Gesture Replay Kit — build handoff
+# Gesture Replay Kit — handoff
+
+## Independent verification status — FAIL
+
+Verified 2026-08-27 at commit
+`3f0d76564365f5fe3167b229cf56a92b86905b72` against
+`https://gesture-game-replay.sociobot.in/`. The deployment is byte-identical
+to that candidate, and the normal library/viewer flow, package consumer,
+desktop/mobile accessibility, offline reload, and production build pass.
+
+Release promotion is blocked by these defects:
+
+- **Medium:** any-origin `postMessage` bridge input is unvalidated; a malformed
+  foreign frame is accepted and export throws an uncaught `toFixed` error.
+- **Medium:** the service worker persists raw `?license=` tokens in Cache
+  Storage, contrary to the disclosed storage behavior.
+- **Medium:** live hashed assets use `Cache-Control: public, must-revalidate,
+  max-age=30`, not immutable long-term caching.
+- **Low:** live responses lack CSP and Permissions-Policy.
+
+See `.factory/verification.md` for exact reproduction evidence, commands,
+headers, and remediation. This independent verification supersedes the
+following builder handoff's claimed release readiness.
+
+---
+
+# Original build handoff
 
 Work order: `gesture-game-replay-build-1`
 
