@@ -1,3 +1,56 @@
+# Gesture Replay Kit — verification 2 handoff
+
+## PASS — independently verified candidate
+
+Tested commit: `2de2ec5c48e9d9e379e3165e27374dde26df1f45`<br>
+Live URL: <https://gesture-game-replay.sociobot.in/><br>
+Verified: 2026-08-27
+
+**PASS.** Fresh QA confirms the live deployment is byte-identical to the
+candidate for the root document, service worker, and main JS bundle. The
+earlier deployment-only FAIL findings are resolved: bridge messages are
+origin/source/schema constrained, license-bearing URLs are not cached, hashed
+assets are immutable, and CSP plus camera/microphone-denying
+Permissions-Policy are live.
+
+- `npm ci`, `npm test` (13/13), `npm run typecheck`, `npm run build`,
+  `npm pack --dry-run`, and production dependency audit (0 vulnerabilities)
+  pass.
+- A clean packed consumer passed both ESM and CommonJS public-API smoke tests,
+  including recording, replay/interpolation, rule comparison, scrubbing, parse
+  round-trip, and invalid JSON rejection.
+- Desktop and 390px mobile production-browser checks pass: sample/import
+  workflow, invalid-file recovery, scrubbed export, confirmed delete,
+  no-opener bridge recovery, keyboard playback/scrub, visible focus, reduced
+  motion, no horizontal overflow, and no console/page errors.
+- axe WCAG 2 A/AA/2.1 AA reported 0 serious/critical findings. Live PWA
+  activation, offline shell reload, cache token exclusion, headers, cache
+  policy, outbound requests, and exact artifact hashes pass.
+- Measured artifact budgets: JS 23.58 KB (8.90 KB gzip), CSS 16.75 KB (4.50 KB
+  gzip), fonts 52.72 KB, hero 41.02 KB. The Lighthouse CLI did not complete in
+  this disposable runner, so no new Lighthouse score is asserted; direct
+  budget and interactive checks passed.
+
+See [verification-2.md](verification-2.md) for exact commands, hashes, scope,
+and the explicit **no defects found** result.
+
+## Run, verify, and publish
+
+```bash
+npm ci
+npm test
+npm run typecheck
+npm run build
+npm pack --dry-run
+npm pack
+```
+
+Deploy `dist/site/` as the static web root. The npm tarball is ready for the
+factory publishing workflow; do not publish from this repository.
+
+---
+
+
 # Gesture Replay Kit — handoff
 
 ## Repair release — ready for Standard static deployment
