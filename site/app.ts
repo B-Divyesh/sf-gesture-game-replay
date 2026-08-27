@@ -5,8 +5,9 @@ import {
 } from '../src/index';
 import type {
   ComparisonOperator, GestureFixture, GestureRule, Landmark, LandmarkAxis,
-  LandmarkFrame, LandmarkStream, RecorderFrame, RuleComparison,
+  LandmarkFrame, LandmarkStream, RuleComparison,
 } from '../src/index';
+import { isTrustedBridgeOrigin, isTrustedBridgeSource, validateBridgePayload } from './bridge';
 
 const byId = <T extends HTMLElement>(id: string): T => {
   const element = document.getElementById(id);
@@ -334,24 +335,45 @@ byId<HTMLButtonElement>('bridge-code-button').addEventListener('click', (event) 
 
 let recorder: LandmarkRecorder | null = null;
 let recordedFrames = 0;
+let bridgeSource: MessageEventSource | null = null;
 const recordButton = byId<HTMLButtonElement>('record-button');
 recordButton.addEventListener('click', () => {
   if (!recorder) {
+    if (!window.opener) {
+      setStatus('Bridge recording needs a trusted detector window to open this viewer. Import JSON or use the example to continue.', true);
+      return;
+    }
     recorder = new LandmarkRecorder({ source: 'local-window-bridge' }); recordedFrames = 0; recorder.start(performance.now());
+    bridgeSource = null;
     recordButton.textContent = 'Stop recording'; recordButton.setAttribute('aria-pressed', 'true');
-    setStatus('Listening for local gesture-replay:frame messages. No camera or pixels are accessed.');
+    setStatus('Listening only to the trusted detector window. No camera or pixels are accessed.');
   } else {
-    if (!recordedFrames) { recorder.clear(); setStatus('No landmark messages arrived. Start your detector bridge, then record again.', true); }
+    if (!recordedFrames) { recorder.clear(); setStatus('No landmark messages arrived. Confirm the trusted detector origin, then record again or import JSON.', true); }
     else setFixture(recorder.stop(performance.now()), `bridge-${new Date().toISOString().slice(0, 19).replaceAll(':', '-')}.fixture.json`);
-    recorder = null; recordButton.textContent = 'Record bridge'; recordButton.setAttribute('aria-pressed', 'false');
+    recorder = null; bridgeSource = null; recordButton.textContent = 'Record bridge'; recordButton.setAttribute('aria-pressed', 'false');
   }
 });
 window.addEventListener('message', (event: MessageEvent<unknown>) => {
-  if (!recorder || typeof event.data !== 'object' || event.data === null) return;
-  const message = event.data as { type?: unknown; frame?: unknown };
-  if (message.type !== 'gesture-replay:frame' || typeof message.frame !== 'object' || message.frame === null) return;
-  try { recorder.addFrame(message.frame as RecorderFrame); recordedFrames += 1; setStatus(`Recording landmarks… ${recordedFrames} frames captured.`); }
-  catch (error) { setStatus(`Skipped a bridge frame: ${error instanceof Error ? error.message : 'invalid data'}`, true); }
+  if (!recorder) return;
+  if (!isTrustedBridgeOrigin(event.origin) || !isTrustedBridgeSource(event.source, window.opener)) {
+    setStatus('Ignored a bridge message from an untrusted origin or window. Use the trusted detector or import JSON instead.', true);
+    return;
+  }
+  if (bridgeSource && event.source !== bridgeSource) {
+    setStatus('Ignored a bridge message from a different window. Stop and restart recording to switch detector windows.', true);
+    return;
+  }
+  const payload = validateBridgePayload(event.data);
+  if (!payload.ok) {
+    setStatus(`Skipped an unsafe bridge frame: ${payload.reason} Fix the detector payload or import JSON instead.`, true);
+    return;
+  }
+  try {
+    recorder.addFrame(payload.frame); bridgeSource = event.source; recordedFrames += 1;
+    setStatus(`Recording landmarks… ${recordedFrames} frames captured.`);
+  } catch (error) {
+    setStatus(`Skipped a bridge frame: ${error instanceof Error ? error.message : 'invalid data'}. You can import JSON instead.`, true);
+  }
 });
 
 async function copyText(text: string, button: HTMLButtonElement, original: string): Promise<void> {
@@ -373,6 +395,7 @@ const licenseStatus = byId<HTMLParagraphElement>('license-status');
 
 function storageGet(key: string): string | null { try { return localStorage.getItem(key); } catch { return null; } }
 function storageSet(key: string, value: string): void { try { localStorage.setItem(key, value); } catch { licenseStatus.textContent = 'This browser blocked local storage; the unlock will last only for this page.'; } }
+function storageRemove(key: string): void { try { localStorage.removeItem(key); } catch { /* Storage is optional. */ } }
 function showUnlocked(): void {
   byId<HTMLDivElement>('locked-license').hidden = true; byId<HTMLDivElement>('unlocked-license').hidden = false;
   updateAdapter();
@@ -387,6 +410,7 @@ async function verifyLicense(token: string, announce = true): Promise<boolean> {
     const result = await response.json() as { valid?: boolean; reason?: string };
     storageSet(VERDICT_KEY, JSON.stringify({ valid: result.valid === true, checkedAt: Date.now() }));
     if (result.valid) { storageSet(LICENSE_KEY, token); showUnlocked(); licenseStatus.textContent = 'License active on this device.'; return true; }
+    storageRemove(LICENSE_KEY); storageRemove(VERDICT_KEY);
     showLocked(); licenseStatus.textContent = `License no longer active (${result.reason ?? 'invalid'}). You can buy or restore another license.`; return false;
   } catch {
     licenseStatus.textContent = 'Could not reach license verification. The free workbench still works; try again when online.';
@@ -395,7 +419,11 @@ async function verifyLicense(token: string, announce = true): Promise<boolean> {
 }
 function initializeLicense(): void {
   const url = new URL(location.href); const returned = url.searchParams.get('license');
-  if (returned) { storageSet(LICENSE_KEY, returned); url.searchParams.delete('license'); history.replaceState({}, '', url); void verifyLicense(returned); return; }
+  if (returned) {
+    // A checkout return token must never be persisted until the live verifier accepts it.
+    url.searchParams.delete('license'); history.replaceState({}, '', url);
+    licenseStatus.textContent = 'Checking your returned license…'; void verifyLicense(returned, false); return;
+  }
   const token = storageGet(LICENSE_KEY); if (!token) return;
   try {
     const cached = JSON.parse(storageGet(VERDICT_KEY) ?? '{}') as { valid?: boolean; checkedAt?: number };
@@ -411,7 +439,7 @@ byId<HTMLButtonElement>('restore-toggle').addEventListener('click', (event) => {
 byId<HTMLFormElement>('restore-form').addEventListener('submit', (event) => {
   event.preventDefault(); const token = byId<HTMLInputElement>('license-input').value.trim();
   if (!token) { licenseStatus.textContent = 'Paste the license token from your receipt.'; return; }
-  storageSet(LICENSE_KEY, token); void verifyLicense(token);
+  void verifyLicense(token);
 });
 byId<HTMLSelectElement>('adapter-select').addEventListener('change', updateAdapter);
 byId<HTMLButtonElement>('copy-adapter').addEventListener('click', (event) => void copyText(ADAPTERS[byId<HTMLSelectElement>('adapter-select').value] ?? '', event.currentTarget as HTMLButtonElement, 'Copy adapter'));

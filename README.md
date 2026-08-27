@@ -86,6 +86,10 @@ npm run dev         # local viewer
 
 The documented examples are covered by tests. No telemetry, cloud storage, camera access, or runtime CDN is used. See [privacy](https://gesture-game-replay.sociobot.in/privacy/) and [terms](https://gesture-game-replay.sociobot.in/terms/).
 
+## Viewer bridge and Adapter Pack
+
+The optional viewer bridge accepts only complete landmark messages from an explicit first-party allowlist and from the detector window that opened the viewer. Invalid or untrusted messages are discarded with an on-page recovery message; importing JSON always remains available. The $19 Adapter Pack uses the registered live Sociobot checkout at `https://api.sociobot.in/api/v1/products/gesture-game-replay/checkout`. Checkout-return and pasted tokens are verified before local storage; the service worker never caches license-bearing URLs or responses.
+
 For static deployment, run `npm run build` and publish `dist/site/` as the web root; `dist/site/index.html` is the entry point. Registry publishing is intentionally left to the factory: verify the package with `npm pack --dry-run`, then publish through the authorized release workflow.
 
 ## License

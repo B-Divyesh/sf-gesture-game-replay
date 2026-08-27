@@ -1,26 +1,33 @@
 # Gesture Replay Kit — handoff
 
-## Independent verification status — FAIL
+## Repair release — ready for Standard static deployment
 
-Verified 2026-08-27 at commit
-`3f0d76564365f5fe3167b229cf56a92b86905b72` against
-`https://gesture-game-replay.sociobot.in/`. The deployment is byte-identical
-to that candidate, and the normal library/viewer flow, package consumer,
-desktop/mobile accessibility, offline reload, and production build pass.
+Work order: `gesture-game-replay-repair-1`
+Base: `8de9e9812b3128ca4a3ab0010436bc7325b87b71`
+Completed: 2026-08-27
 
-Release promotion is blocked by these defects:
+All findings in the independent report have been repaired:
 
-- **Medium:** any-origin `postMessage` bridge input is unvalidated; a malformed
-  foreign frame is accepted and export throws an uncaught `toFixed` error.
-- **Medium:** the service worker persists raw `?license=` tokens in Cache
-  Storage, contrary to the disclosed storage behavior.
-- **Medium:** live hashed assets use `Cache-Control: public, must-revalidate,
-  max-age=30`, not immutable long-term caching.
-- **Low:** live responses lack CSP and Permissions-Policy.
+- The bridge has an explicit production/development first-party origin
+  allowlist, requires the opening detector window as its source, validates and
+  copies every payload field before `LandmarkRecorder` sees it, and gives an
+  on-page recovery message for untrusted, malformed, or non-monotonic frames.
+  A standalone viewer guides users to JSON import/example recovery.
+- Service-worker cache v2 precaches only fixed shell files and permits runtime
+  caching only for query-free same-origin hashed assets. License-bearing URLs
+  are network-only; license-bearing response URLs cannot be cached; activation
+  removes the prior permissive cache. Checkout-return/pasted tokens are only
+  stored after live verification succeeds.
+- The static artifact carries one-year immutable caching for `/assets/*`, with
+  HTML and `/sw.js` revalidating, plus CSP, Permissions-Policy (camera and
+  microphone disabled), Referrer-Policy, and nosniff headers.
+- The product uses the registered production endpoint
+  `https://api.sociobot.in/api/v1/products/gesture-game-replay/checkout`.
+  The live probe followed its 303 to a Dodo checkout session.
 
-See `.factory/verification.md` for exact reproduction evidence, commands,
-headers, and remediation. This independent verification supersedes the
-following builder handoff's claimed release readiness.
+`dist/site/` is the Standard static deployment root. Publish it as-is; its
+checked-in `_headers` is part of the artifact and must be honored by the
+static host.
 
 ---
 
@@ -59,21 +66,33 @@ Static deployment root: `dist/site/` (contains `index.html`, `/privacy/index.htm
 ## Verification
 
 - Clean-clone install: passed; npm audit reported 0 vulnerabilities.
-- `npm test`: 8/8 passing.
+- `npm test`: 13/13 passing, including exact bridge, service-worker/header,
+  and live-checkout regressions.
 - `npm run typecheck`: passed with strict TypeScript.
 - `npm run build`: passed; ESM 12.82 KB, CJS 14.29 KB, declarations 4.35 KB, and `dist/site/index.html` produced.
-- `npm pack --dry-run`: passed; 9 files, 8.9 KB compressed / 43.9 KB unpacked.
-- Node smoke tests: both CommonJS `require()` and ESM `import()` passed.
+- `npm pack --dry-run`: passed; 9 files, 9.2 KB compressed / 44.8 KB unpacked.
+- Fresh packed consumer smoke tests: both CommonJS `require()` and ESM
+  `import()` passed from a temporary clean install.
 - Factory `verify-url.sh`: HTTP 200, title, `lang=en`, one h1, main landmark, image alt, labeled buttons, and zero browser console/page errors.
-- Playwright at 390×844: empty state, sample loading, replay progression, and live threshold update passed with no console errors.
-- axe-core 4.13 WCAG A/AA/2.1 AA: 0 violations in empty workbench, loaded workbench, privacy, and terms routes.
-- Offline Playwright reload after service-worker activation: shell visible, offline status announced, zero console errors.
-- Lighthouse 12.8.2 mobile against the production build: Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 1.0 s, LCP 1.5 s, CLS 0, TBT 40 ms. Lab INP was not available because the run had no user interaction; the interactive smoke test showed immediate playback/rule updates.
-- Production asset budgets: initial JS 21.01 KB (8.07 KB gzip), CSS 16.75 KB (4.50 KB gzip), fonts 52.72 KB total, hero 41.02 KB.
+- Playwright bridge/PWA regression: trusted popup recorded one valid frame;
+  malformed input displayed recovery text with zero page errors; a license
+  canary URL produced no Cache Storage key. A foreign origin is rejected by
+  the exact allowlist regression.
+- Factory `verify-url.sh` against the clean production build: HTTP 200, title,
+  `lang=en`, one h1, main landmark, alt text, and zero browser console/page
+  errors. At 390×844 there was no horizontal overflow; axe-core WCAG
+  A/AA/2.1 AA returned 0 violations.
+- PWA service-worker activation cached only the fixed shell locally; the
+  generated artifact includes cache v2 and the no-license cache guard.
+- Live checkout check: production API returned 303 to
+  `checkout.dodopayments.com/session/...`.
+- Lighthouse 12.8.2 mobile against the production build: Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 1.0 s, LCP 1.5 s, CLS 0, TBT 70 ms. Lab INP was not available because the run had no user interaction; the interactive smoke test showed immediate playback/rule updates.
+- Production asset budgets: initial JS 23.58 KB (8.90 KB gzip), CSS 16.75 KB (4.50 KB gzip), fonts 52.72 KB total, hero 41.02 KB.
 
 ## Known gaps and next steps
 
 - Camera inference is intentionally not bundled: this product consumes detector landmarks and never handles video. The paid adapters are integration snippets, not detector models.
-- The hosted billing endpoint must have the `gesture-game-replay` product registered by the factory before real purchases can verify. No product ID or provider credential is embedded.
+- The live product is registered and checkout is intentionally hosted by
+  Sociobot/Dodo; no payment credentials are embedded in this repository.
 - The viewer edits one predicate per rule for a compact v1 interface; the library already supports multi-predicate `all` rules for application and test-suite use.
 - A future team tier could add encrypted fixture collections and engine-specific packages, but no cloud trace storage is part of v1.
