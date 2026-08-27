@@ -1,0 +1,49 @@
+{
+  "name": "gesture-game-replay",
+  "version": "0.1.0",
+  "description": "Privacy-first landmark recording, deterministic replay, and gesture rule comparison.",
+  "type": "module",
+  "main": "./dist/lib/index.cjs",
+  "module": "./dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib/index.d.ts",
+      "import": "./dist/lib/index.js",
+      "require": "./dist/lib/index.cjs"
+    }
+  },
+  "files": [
+    "dist/lib",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "docs/format.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build:lib": "tsup src/index.ts --format esm,cjs --dts --out-dir dist/lib --clean --target es2022",
+    "build:site": "vite build",
+    "build": "npm run build:lib && npm run build:site",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build:lib"
+  },
+  "keywords": ["gesture", "mediapipe", "landmarks", "replay", "testing", "privacy"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/B-Divyesh/sf-gesture-game-replay.git"
+  },
+  "engines": { "node": ">=18" },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "jsdom": "^26.1.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.1.3"
+  }
+}
