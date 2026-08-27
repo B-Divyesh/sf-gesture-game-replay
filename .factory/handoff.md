@@ -29,6 +29,11 @@ All findings in the independent report have been repaired:
 contains both portable `_headers` and Azure Static Web Apps
 `staticwebapp.config.json` header policies.
 
+Deployed and verified at https://gesture-game-replay.sociobot.in/ on
+2026-08-27. Live HTML and `/sw.js` return CSP, Permissions-Policy, and
+revalidation cache headers; live `assets/main-DSRSQGzt.js` returns
+`public, max-age=31536000, immutable`.
+
 ---
 
 # Original build handoff
@@ -86,6 +91,9 @@ Static deployment root: `dist/site/` (contains `index.html`, `/privacy/index.htm
   generated artifact includes cache v2 and the no-license cache guard.
 - Live checkout check: production API returned 303 to
   `checkout.dodopayments.com/session/...`.
+- Final live PWA check: after worker activation, a
+  `?license=live-verification-canary` navigation left Cache Storage with only
+  fixed shell URLs and no page errors.
 - Lighthouse 12.8.2 mobile against the production build: Performance 100, Accessibility 100, Best Practices 100, SEO 100; FCP 1.0 s, LCP 1.5 s, CLS 0, TBT 70 ms. Lab INP was not available because the run had no user interaction; the interactive smoke test showed immediate playback/rule updates.
 - Production asset budgets: initial JS 23.58 KB (8.90 KB gzip), CSS 16.75 KB (4.50 KB gzip), fonts 52.72 KB total, hero 41.02 KB.
 
