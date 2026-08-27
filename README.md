@@ -86,6 +86,8 @@ npm run dev         # local viewer
 
 The documented examples are covered by tests. No telemetry, cloud storage, camera access, or runtime CDN is used. See [privacy](https://gesture-game-replay.sociobot.in/privacy/) and [terms](https://gesture-game-replay.sociobot.in/terms/).
 
+For static deployment, run `npm run build` and publish `dist/site/` as the web root; `dist/site/index.html` is the entry point. Registry publishing is intentionally left to the factory: verify the package with `npm pack --dry-run`, then publish through the authorized release workflow.
+
 ## License
 
 MIT © 2026 Sociobot (Param Factory). Font licenses are included alongside the self-hosted font files.

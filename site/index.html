@@ -126,7 +126,7 @@ viewer.postMessage({
                   <label>Stream<select id="a-stream"><option value="pose">Pose</option><option value="leftHand">Left hand</option><option value="rightHand">Right hand</option></select></label>
                   <label>Point index<input id="a-index" type="number" min="0" max="99" value="15" inputmode="numeric" /></label>
                   <label>Value<select id="a-axis"><option value="y">Y position</option><option value="x">X position</option><option value="z">Z depth</option><option value="visibility">Visibility</option><option value="presence">Presence</option></select></label>
-                  <label>Test<select id="a-op"><option value="lt">is below</option><option value="lte">is ≤</option><option value="gt">is above</option><option value="gte">is ≥</option></select></label>
+                  <label>Test<select id="a-op"><option value="lt">is &lt; threshold</option><option value="lte">is ≤ threshold</option><option value="gt">is &gt; threshold</option><option value="gte">is ≥ threshold</option></select></label>
                   <label>Threshold<input id="a-value" type="number" min="-2" max="2" value="0.42" step="0.01" inputmode="decimal" /></label>
                   <label>Hold ms<input id="a-hold" type="number" min="0" max="5000" value="80" step="10" inputmode="numeric" /></label>
                 </div>
@@ -137,7 +137,7 @@ viewer.postMessage({
                   <label>Stream<select id="b-stream"><option value="pose">Pose</option><option value="leftHand">Left hand</option><option value="rightHand">Right hand</option></select></label>
                   <label>Point index<input id="b-index" type="number" min="0" max="99" value="15" inputmode="numeric" /></label>
                   <label>Value<select id="b-axis"><option value="y">Y position</option><option value="x">X position</option><option value="z">Z depth</option><option value="visibility">Visibility</option><option value="presence">Presence</option></select></label>
-                  <label>Test<select id="b-op"><option value="lt">is below</option><option value="lte">is ≤</option><option value="gt">is above</option><option value="gte">is ≥</option></select></label>
+                  <label>Test<select id="b-op"><option value="lt">is &lt; threshold</option><option value="lte">is ≤ threshold</option><option value="gt">is &gt; threshold</option><option value="gte">is ≥ threshold</option></select></label>
                   <label>Threshold<input id="b-value" type="number" min="-2" max="2" value="0.34" step="0.01" inputmode="decimal" /></label>
                   <label>Hold ms<input id="b-hold" type="number" min="0" max="5000" value="140" step="10" inputmode="numeric" /></label>
                 </div>
