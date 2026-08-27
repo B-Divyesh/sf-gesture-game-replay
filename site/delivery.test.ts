@@ -17,10 +17,15 @@ describe('static delivery security regression', () => {
 
   it('ships immutable hashed assets and production browser protection headers', async () => {
     const headers = await readFile(resolve(root, 'site/public/_headers'), 'utf8');
+    const azure = await readFile(resolve(root, 'site/public/staticwebapp.config.json'), 'utf8');
     expect(headers).toContain('/assets/*\n  Cache-Control: public, max-age=31536000, immutable');
     expect(headers).toContain("Content-Security-Policy: default-src 'self'");
     expect(headers).toContain('connect-src \'self\' https://api.sociobot.in');
     expect(headers).toContain('Permissions-Policy: camera=(), microphone=()');
+    expect(azure).toContain('"route": "/assets/*"');
+    expect(azure).toContain('"Cache-Control": "public, max-age=31536000, immutable"');
+    expect(azure).toContain('"Content-Security-Policy"');
+    expect(azure).toContain('"Permissions-Policy"');
   });
 
   it('uses the registered live Sociobot checkout, never the staging endpoint', async () => {

@@ -25,9 +25,9 @@ All findings in the independent report have been repaired:
   `https://api.sociobot.in/api/v1/products/gesture-game-replay/checkout`.
   The live probe followed its 303 to a Dodo checkout session.
 
-`dist/site/` is the Standard static deployment root. Publish it as-is; its
-checked-in `_headers` is part of the artifact and must be honored by the
-static host.
+`dist/site/` is the Standard static deployment root. Publish it as-is; it
+contains both portable `_headers` and Azure Static Web Apps
+`staticwebapp.config.json` header policies.
 
 ---
 
