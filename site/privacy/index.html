@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f0df" />
+    <meta name="description" content="Privacy details for Gesture Replay Kit's local landmark fixture viewer." />
+    <title>Privacy — Gesture Replay Kit</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script type="module" src="/legal.ts"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div id="offline-banner" class="offline-banner" role="status" hidden>You’re offline. This privacy notice remains available.</div>
+    <header class="site-header"><a class="brand" href="/"><span aria-hidden="true" class="brand-pin"></span>Gesture Replay Kit</a><nav aria-label="Primary navigation"><a href="/#workbench">Workbench</a><a href="/#api">API</a><a href="/#adapters">Adapter Pack</a></nav></header>
+    <main id="main" class="legal-page shell">
+      <article>
+        <p class="eyebrow">Plain-language policy</p>
+        <h1>Privacy</h1>
+        <p class="updated">Effective August 27, 2026</p>
+        <p>Gesture Replay Kit is designed to work without sending gesture fixtures to us. The viewer does not request camera permission and never accepts video. Imported landmark JSON remains in your browser tab’s memory until you remove it, refresh, or close the tab.</p>
+        <h2>Data the viewer handles</h2>
+        <p>A fixture can contain normalized pose or hand coordinates, confidence values, timestamps, and optional notes. Landmark traces may still be biometric or sensitive information. Only collect them with appropriate consent, avoid names or identifiers in notes, and delete them when your testing purpose is complete.</p>
+        <h2>Storage and network requests</h2>
+        <p>Free workbench data is not saved to local storage or transmitted. A service worker stores static app files on your device so the viewer can reopen offline. It does not cache imported fixtures. No analytics, advertising, trackers, third-party scripts, or CDN fonts run on this site.</p>
+        <p>If you use the paid Adapter Pack, the license token and a timestamped verification result are stored in your browser under <code>sb_license:gesture-game-replay</code>. At most once per day, the site sends that token to Sociobot’s license verification endpoint. Checkout and refunds are handled by Sociobot/Dodo as merchant of record under their checkout privacy terms.</p>
+        <h2>Your controls</h2>
+        <p>Use “Delete current fixture” to remove the active trace, or close the tab. You can clear offline files, licenses, and verification results through your browser’s site-data controls. Scrubbed export removes source notes and dates, rounds values, and normalizes time; it does not make motion data anonymous.</p>
+        <h2>Contact and changes</h2>
+        <p>For privacy or deletion questions, contact <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a>. Material policy changes will update the effective date on this page.</p>
+      </article>
+    </main>
+    <footer class="site-footer shell"><p><span class="brand-pin" aria-hidden="true"></span><strong>Gesture Replay Kit</strong></p><nav aria-label="Legal"><a href="/">Home</a><a aria-current="page" href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav></footer>
+  </body>
+</html>

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f0df" />
+    <meta name="description" content="Record landmark traces, replay gestures, and compare deterministic rules without retaining video." />
+    <title>Gesture Replay Kit — tune gestures without keeping video</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/assets/fonts/atkinson-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <script type="module" src="/app.ts"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div id="offline-banner" class="offline-banner" role="status" hidden>You’re offline. Imported fixtures and the full free workbench still work; license checks will resume later.</div>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Gesture Replay Kit home"><span aria-hidden="true" class="brand-pin"></span>Gesture Replay Kit</a>
+      <nav aria-label="Primary navigation">
+        <a href="#workbench">Workbench</a><a href="#api">API</a><a href="#adapters">Adapter Pack</a><a href="https://github.com/B-Divyesh/sf-gesture-game-replay">GitHub</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero shell" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">A motion lab without the footage</p>
+          <h1 id="hero-title">Replay the gesture.<br /><em>Not the person.</em></h1>
+          <p class="hero-lede">Capture pose and hand landmarks, reproduce a missed move, then compare threshold rules frame by frame—all locally, with no video retained.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#workbench">Open the workbench</a>
+            <button class="button paper" type="button" data-action="load-sample">Load example trace</button>
+          </div>
+          <ul class="privacy-chips" aria-label="Privacy properties">
+            <li>Pixels never enter</li><li>No account</li><li>JSON stays local</li>
+          </ul>
+        </div>
+        <figure class="hero-art">
+          <img src="/assets/hero-paper-stage.webp" width="1200" height="800" fetchpriority="high" alt="An anonymous jointed paper figure rehearsing on a layered stage beside two colored motion paths." />
+          <figcaption>Movements become test fixtures—not recordings.</figcaption>
+        </figure>
+      </section>
+
+      <section class="privacy-strip" aria-label="Privacy reminder">
+        <div class="shell">
+          <strong>Landmarks are not anonymous.</strong>
+          <span>Get consent, collect only what the game needs, and delete fixtures when the test is done.</span>
+          <a href="/privacy/">Read the privacy note</a>
+        </div>
+      </section>
+
+      <section id="workbench" class="workbench shell" aria-labelledby="workbench-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">Local fixture workbench</p><h2 id="workbench-title">Put a trace on the stage</h2></div>
+          <p>Import <code>gesture-replay/v1</code> JSON, use the example, or record landmark messages from your app. Nothing uploads.</p>
+        </div>
+
+        <div id="drop-zone" class="workbench-frame" data-empty="true">
+          <div class="tool-shelf" aria-label="Fixture actions">
+            <div class="fixture-identity">
+              <span id="fixture-dot" class="fixture-dot" aria-hidden="true"></span>
+              <div><span class="micro-label">Current fixture</span><strong id="fixture-name">No trace loaded</strong></div>
+            </div>
+            <div class="tool-actions">
+              <label class="button compact paper" for="fixture-file">Import JSON</label>
+              <input id="fixture-file" class="visually-hidden" type="file" accept="application/json,.json" />
+              <button class="button compact paper" type="button" data-action="load-sample">Use example</button>
+              <button id="record-button" class="button compact paper" type="button" aria-describedby="bridge-help">Record bridge</button>
+              <button id="export-button" class="button compact primary" type="button" disabled>Export scrubbed</button>
+              <button id="delete-button" class="icon-button" type="button" disabled aria-label="Delete current fixture" title="Delete current fixture">×</button>
+            </div>
+          </div>
+          <p id="bridge-help" class="bridge-help">Bridge accepts local <code>gesture-replay:frame</code> window messages from your detector. <button id="bridge-code-button" class="text-button" type="button">Show code</button></p>
+          <pre id="bridge-code" class="code-card" hidden><code>window.postMessage({
+  type: 'gesture-replay:frame',
+  frame: { timestamp: performance.now(), pose: results.poseLandmarks }
+}, location.origin);</code></pre>
+
+          <div id="empty-state" class="empty-state">
+            <div class="empty-figure" aria-hidden="true"><i></i><b></b><span></span></div>
+            <h3>Bring a landmark trace</h3>
+            <p>Drop a JSON fixture here or load the anonymous example. Raw video is neither requested nor supported.</p>
+            <button class="button primary" type="button" data-action="load-sample">Load example trace</button>
+          </div>
+
+          <div id="loaded-state" class="replay-layout" hidden>
+            <div class="stage-column">
+              <div class="stage-readout" aria-live="polite">
+                <span><b id="time-readout">0:00.000</b> / <span id="duration-readout">0:00.000</span></span>
+                <span id="frame-readout">Frame 0 of 0</span>
+              </div>
+              <div class="stage-wrap">
+                <canvas id="pose-canvas" width="720" height="560" role="img" aria-label="Landmark skeleton at the selected time"></canvas>
+              </div>
+              <div class="transport" aria-label="Replay controls">
+                <button id="play-button" class="round-button" type="button" aria-label="Play replay"><span aria-hidden="true">▶</span></button>
+                <label class="time-slider-label" for="time-slider"><span class="visually-hidden">Replay time</span><input id="time-slider" type="range" min="0" max="1000" value="0" step="1" /></label>
+                <label class="speed-label" for="speed-select">Speed<select id="speed-select"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+              </div>
+              <p class="key-hint">Keyboard: <kbd>Space</kbd> play/pause · <kbd>←</kbd><kbd>→</kbd> step 100 ms · <kbd>Home</kbd><kbd>End</kbd> jump</p>
+            </div>
+
+            <aside class="inspector" aria-labelledby="inspector-title">
+              <h3 id="inspector-title">Frame inspector</h3>
+              <dl class="metrics">
+                <div><dt>Mean confidence</dt><dd id="confidence-value">—</dd></div>
+                <div><dt>Occluded points</dt><dd id="occluded-value">—</dd></div>
+                <div><dt>Streams</dt><dd id="stream-value">—</dd></div>
+              </dl>
+              <details>
+                <summary>Current landmark values</summary>
+                <pre id="frame-json" class="frame-json" tabindex="0"></pre>
+              </details>
+            </aside>
+          </div>
+
+          <div id="comparison-panel" class="comparison-panel" hidden>
+            <div class="comparison-heading"><div><p class="eyebrow">Threshold comparison</p><h3>Where do the rules disagree?</h3></div><p id="comparison-summary" aria-live="polite"></p></div>
+            <div class="rule-grid">
+              <fieldset class="rule-card rule-a">
+                <legend><span>A</span> Baseline rule</legend>
+                <div class="rule-fields">
+                  <label>Stream<select id="a-stream"><option value="pose">Pose</option><option value="leftHand">Left hand</option><option value="rightHand">Right hand</option></select></label>
+                  <label>Point index<input id="a-index" type="number" min="0" max="99" value="15" inputmode="numeric" /></label>
+                  <label>Value<select id="a-axis"><option value="y">Y position</option><option value="x">X position</option><option value="z">Z depth</option><option value="visibility">Visibility</option><option value="presence">Presence</option></select></label>
+                  <label>Test<select id="a-op"><option value="lt">is below</option><option value="lte">is ≤</option><option value="gt">is above</option><option value="gte">is ≥</option></select></label>
+                  <label>Threshold<input id="a-value" type="number" min="-2" max="2" value="0.42" step="0.01" inputmode="decimal" /></label>
+                  <label>Hold ms<input id="a-hold" type="number" min="0" max="5000" value="80" step="10" inputmode="numeric" /></label>
+                </div>
+              </fieldset>
+              <fieldset class="rule-card rule-b">
+                <legend><span>B</span> Candidate rule</legend>
+                <div class="rule-fields">
+                  <label>Stream<select id="b-stream"><option value="pose">Pose</option><option value="leftHand">Left hand</option><option value="rightHand">Right hand</option></select></label>
+                  <label>Point index<input id="b-index" type="number" min="0" max="99" value="15" inputmode="numeric" /></label>
+                  <label>Value<select id="b-axis"><option value="y">Y position</option><option value="x">X position</option><option value="z">Z depth</option><option value="visibility">Visibility</option><option value="presence">Presence</option></select></label>
+                  <label>Test<select id="b-op"><option value="lt">is below</option><option value="lte">is ≤</option><option value="gt">is above</option><option value="gte">is ≥</option></select></label>
+                  <label>Threshold<input id="b-value" type="number" min="-2" max="2" value="0.34" step="0.01" inputmode="decimal" /></label>
+                  <label>Hold ms<input id="b-hold" type="number" min="0" max="5000" value="140" step="10" inputmode="numeric" /></label>
+                </div>
+              </fieldset>
+            </div>
+            <div class="timeline-wrap">
+              <canvas id="timeline-canvas" width="1120" height="230" role="img" aria-describedby="timeline-description"></canvas>
+              <p id="timeline-description" class="timeline-description">Confidence, rule A, rule B, and disagreement tracks over the duration of the loaded fixture.</p>
+            </div>
+          </div>
+          <p id="fixture-status" class="status-message" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section id="api" class="api-section shell" aria-labelledby="api-title">
+        <div class="section-heading"><div><p class="eyebrow">Tiny public surface</p><h2 id="api-title">From detector output to regression fixture</h2></div><p>Typed ESM + CommonJS. Zero runtime dependencies. The format is open and versioned.</p></div>
+        <ol class="api-steps">
+          <li><span>1</span><h3>Record</h3><p>Feed timestamped pose or hand arrays into <code>LandmarkRecorder</code>. Video is not a valid input.</p></li>
+          <li><span>2</span><h3>Reproduce</h3><p>Use <code>frameAt</code> and <code>ReplayClock</code> for deterministic time and speed.</p></li>
+          <li><span>3</span><h3>Compare</h3><p>Evaluate threshold rules with hold time and inspect every disagreement interval.</p></li>
+        </ol>
+        <div class="install-row"><code>npm install gesture-game-replay</code><button id="copy-install" class="button paper compact" type="button">Copy install command</button><a href="https://github.com/B-Divyesh/sf-gesture-game-replay#readme">Read the API guide →</a></div>
+      </section>
+
+      <section id="adapters" class="paid-section" aria-labelledby="paid-title">
+        <div class="shell paid-grid">
+          <div><p class="eyebrow">Optional one-time unlock</p><h2 id="paid-title">Adapter Pack <span>$19</span></h2><p>Keep the complete format, viewer, rule comparison, and scrubbed export free. The Adapter Pack adds ready-to-copy MediaPipe and TensorFlow.js bridges plus batch fixture manifests.</p><p class="legal-note">One-time purchase. Sociobot/Dodo is the merchant of record and handles refunds. A refund automatically revokes the license.</p></div>
+          <div class="license-card">
+            <div id="locked-license">
+              <a class="button primary wide" href="https://api.sociobot.in/api/v1/products/gesture-game-replay/checkout">Buy Adapter Pack — $19</a>
+              <button id="restore-toggle" class="text-button" type="button" aria-expanded="false" aria-controls="restore-form">Have a license? Restore it</button>
+              <form id="restore-form" hidden>
+                <label for="license-input">License token</label>
+                <div class="restore-row"><input id="license-input" type="text" autocomplete="off" spellcheck="false" /><button class="button paper compact" type="submit">Verify license</button></div>
+              </form>
+            </div>
+            <div id="unlocked-license" hidden>
+              <p class="unlocked-mark"><span aria-hidden="true">✓</span> Adapter Pack unlocked</p>
+              <label for="adapter-select">Choose adapter</label>
+              <select id="adapter-select"><option value="mediapipe">MediaPipe Tasks Vision</option><option value="tfjs">TensorFlow.js pose detection</option><option value="manifest">Batch fixture manifest</option></select>
+              <pre id="adapter-code" class="code-card adapter-code"><code></code></pre>
+              <button id="copy-adapter" class="button paper compact" type="button">Copy adapter</button>
+            </div>
+            <p id="license-status" class="license-status" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer shell">
+      <p><span class="brand-pin" aria-hidden="true"></span><strong>Gesture Replay Kit</strong> · open format, local-first viewer.</p>
+      <nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-gesture-game-replay">Source</a></nav>
+    </footer>
+  </body>
+</html>
