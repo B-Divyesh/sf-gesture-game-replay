@@ -2,11 +2,11 @@ import './style.css';
 import {
   compareRules, evaluateRule, FixtureValidationError, frameAt, LandmarkRecorder,
   parseFixture, scrubFixture, stringifyFixture, summarizeFrame,
-} from '../src/index';
+} from 'gesture-game-replay';
 import type {
   ComparisonOperator, GestureFixture, GestureRule, Landmark, LandmarkAxis,
   LandmarkFrame, LandmarkStream, RuleComparison,
-} from '../src/index';
+} from 'gesture-game-replay';
 import { isTrustedBridgeOrigin, isTrustedBridgeSource, validateBridgePayload } from './bridge';
 
 const byId = <T extends HTMLElement>(id: string): T => {

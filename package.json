@@ -22,8 +22,9 @@
   ],
   "sideEffects": false,
   "scripts": {
+    "predev": "npm run build:lib",
     "dev": "vite --host 0.0.0.0",
-    "test": "npm run build:site && vitest run",
+    "test": "npm run build:lib && npm run build:site && vitest run",
     "test:watch": "vitest",
     "build:lib": "tsup src/index.ts --format esm,cjs --dts --out-dir dist/lib --clean --target es2022",
     "build:site": "vite build",
