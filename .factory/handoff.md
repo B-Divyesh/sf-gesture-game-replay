@@ -4,7 +4,7 @@
 
 **PASS — deployed and verified.**
 
-- Implementation commit: `7626102cf449bae63df1bccea54b0b45f0afbfe2`
+- Implementation commit: `d10ecb6de53d58928559ea347a481b4069b566c3`
 - Verification documentation commit: `afb935b1f19e793549a127d6c335dc9c75c27fde`
 - Previous reviewed implementation: `7a58a7ece680e2bb8b2529c458f61a8ac84360e5`
 - Previous report/documentation commit: `5081d39f8181e98075f2398498980b6c3824f991`
@@ -24,6 +24,8 @@ starts with **Try it with sample data**. It says that clicking loads a
 - Added `.factory/claims.json` with 16 public claims, exactly one tagged,
   outcome-based check per claim, and clean-consumer coverage for ESM, CommonJS,
   declarations, and zero runtime dependencies.
+- The in-page viewer now bundles the package’s own public `gesture-game-replay`
+  entry point after building `dist/lib`; it no longer reaches into `src/`.
 - Added `/demo`, which immediately opens a populated 41-frame sample workbench.
   The persistent **Demo — sample data, nothing is saved** banner includes
   reset and exit controls. Demo state uses only
@@ -60,7 +62,7 @@ npm pack --dry-run
 
 All passed: audit had zero vulnerabilities; `npm test` passed 31 tests; build
 produced `dist/lib` and `dist/site`; the package dry run contained 9 files,
-9.4 KB compressed / 45.3 KB unpacked. The clean consumer test installed the
+9.4 KB compressed / 45.4 KB unpacked. The clean consumer test installed the
 tarball and exercised ESM, CommonJS, and TypeScript imports.
 
 Every command declared in `.factory/claims.json` was then run independently
@@ -89,7 +91,7 @@ Live evidence:
   and left **Export scrubbed** enabled.
 - CSP, Permissions-Policy, Referrer-Policy, and nosniff headers are live;
   hashed assets have `public, max-age=31536000, immutable`.
-- Current direct budgets: initial JS 25.18 KB (9.42 KB gzip), CSS 17.55 KB
+- Current direct budgets: initial JS 25.19 KB (9.42 KB gzip), CSS 17.55 KB
   (4.65 KB gzip), self-hosted fonts 52.72 KB, hero image 41.02 KB, and social
   card image 30.71 KB. The Lighthouse CLI could not complete in this runner
   because the bundled Chromium tab crashed; no new Lighthouse score is claimed.
