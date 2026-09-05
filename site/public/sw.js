@@ -1,5 +1,5 @@
-const CACHE = 'gesture-replay-shell-v2';
-const SHELL = ['/', '/privacy/', '/terms/', '/favicon.svg'];
+const CACHE = 'gesture-replay-shell-v3';
+const SHELL = ['/', '/demo', '/privacy/', '/terms/', '/404.html', '/favicon.svg'];
 const ASSET_PATH = /^\/assets\/[A-Za-z0-9._-]+$/;
 
 function hasLicenseData(url) {

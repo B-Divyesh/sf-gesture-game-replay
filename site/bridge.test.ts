@@ -2,6 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { isTrustedBridgeOrigin, validateBridgePayload } from './bridge';
 
 describe('browser bridge security regression', () => {
+  it('@claim:bridge-validation accepts a copied valid frame and rejects foreign or malformed messages', () => {
+    const pose = [{ x: 0.42, y: 0.24, visibility: 0.98 }];
+    expect(isTrustedBridgeOrigin('https://gesture-game-replay.sociobot.in')).toBe(true);
+    expect(isTrustedBridgeOrigin('https://untrusted.example')).toBe(false);
+    const valid = validateBridgePayload({ type: 'gesture-replay:frame', frame: { timestamp: 16, pose } });
+    expect(valid).toEqual({ ok: true, frame: { timestamp: 16, pose } });
+    expect(validateBridgePayload({ type: 'gesture-replay:frame', frame: { timestamp: 17, pose: [{}] } })).toMatchObject({ ok: false });
+  });
+
   it('accepts only the explicit first-party production and development origins', () => {
     expect(isTrustedBridgeOrigin('https://gesture-game-replay.sociobot.in')).toBe(true);
     expect(isTrustedBridgeOrigin('https://untrusted.example')).toBe(false);

@@ -22,8 +22,13 @@ const state = {
   playing: false,
   speed: 1,
   lastAnimationTime: 0,
+  reducedMotionCarry: 0,
   comparison: null as RuleComparison | null,
 };
+
+const isDemo = location.pathname === '/demo' || location.pathname === '/demo/' || new URLSearchParams(location.search).get('demo') === '1';
+const DEMO_STORAGE_KEY = 'demo:gesture-game-replay:session';
+const sampleFixtureName = 'Sample — anonymous-wave.fixture.json';
 
 const emptyState = byId<HTMLDivElement>('empty-state');
 const loadedState = byId<HTMLDivElement>('loaded-state');
@@ -93,6 +98,7 @@ function setFixture(fixture: GestureFixture, name: string): void {
   state.name = name;
   state.time = 0;
   state.playing = false;
+  state.reducedMotionCarry = 0;
   emptyState.hidden = true;
   loadedState.hidden = false;
   comparisonPanel.hidden = false;
@@ -115,6 +121,7 @@ function clearFixture(): void {
   state.fixture = null;
   state.playing = false;
   state.time = 0;
+  state.reducedMotionCarry = 0;
   state.comparison = null;
   emptyState.hidden = false;
   loadedState.hidden = true;
@@ -270,8 +277,17 @@ function animate(timestamp: number): void {
   if (!state.lastAnimationTime) state.lastAnimationTime = timestamp;
   const elapsed = timestamp - state.lastAnimationTime;
   state.lastAnimationTime = timestamp;
-  state.time = Math.min(state.fixture.duration, state.time + elapsed * state.speed);
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) state.time = Math.round(state.time / 100) * 100;
+  const advance = elapsed * state.speed;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Keep the sub-step remainder. Rounding every animation frame loses the
+    // usual 16 ms frame completely and freezes playback for motion-sensitive users.
+    state.reducedMotionCarry += advance;
+    const steppedAdvance = Math.floor(state.reducedMotionCarry / 100) * 100;
+    if (steppedAdvance) {
+      state.time = Math.min(state.fixture.duration, state.time + steppedAdvance);
+      state.reducedMotionCarry -= steppedAdvance;
+    }
+  } else state.time = Math.min(state.fixture.duration, state.time + advance);
   if (state.time >= state.fixture.duration) {
     state.playing = false;
     playButton.innerHTML = '<span aria-hidden="true">▶</span>';
@@ -286,6 +302,7 @@ function togglePlayback(): void {
   state.playing = !state.playing;
   if (state.playing && state.time >= state.fixture.duration) state.time = 0;
   state.lastAnimationTime = 0;
+  state.reducedMotionCarry = 0;
   playButton.innerHTML = state.playing ? '<span aria-hidden="true">Ⅱ</span>' : '<span aria-hidden="true">▶</span>';
   playButton.setAttribute('aria-label', state.playing ? 'Pause replay' : 'Play replay');
   if (state.playing) requestAnimationFrame(animate);
@@ -302,7 +319,7 @@ async function importFile(file: File): Promise<void> {
 }
 
 document.querySelectorAll<HTMLButtonElement>('[data-action="load-sample"]').forEach((button) => button.addEventListener('click', () => {
-  setFixture(createSample(), 'anonymous-wave.fixture.json');
+  setFixture(createSample(), isDemo ? sampleFixtureName : 'anonymous-wave.fixture.json');
   document.getElementById('workbench')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 }));
 fileInput.addEventListener('change', () => { const file = fileInput.files?.[0]; if (file) void importFile(file); });
@@ -310,7 +327,7 @@ for (const eventName of ['dragenter', 'dragover']) workbenchFrame.addEventListen
 for (const eventName of ['dragleave', 'drop']) workbenchFrame.addEventListener(eventName, (event) => { event.preventDefault(); workbenchFrame.classList.remove('dragging'); });
 workbenchFrame.addEventListener('drop', (event) => { const file = event.dataTransfer?.files[0]; if (file) void importFile(file); });
 playButton.addEventListener('click', togglePlayback);
-timeSlider.addEventListener('input', () => { state.time = Number(timeSlider.value); state.playing = false; render(); });
+timeSlider.addEventListener('input', () => { state.time = Number(timeSlider.value); state.playing = false; state.reducedMotionCarry = 0; render(); });
 speedSelect.addEventListener('change', () => { state.speed = Number(speedSelect.value); });
 document.querySelectorAll<HTMLInputElement | HTMLSelectElement>('.rule-fields input, .rule-fields select').forEach((input) => input.addEventListener('input', updateComparison));
 deleteButton.addEventListener('click', () => { if (state.fixture && window.confirm(`Remove “${state.name}” from this tab? Any unexported trace will be lost.`)) clearFixture(); });
@@ -443,7 +460,43 @@ byId<HTMLFormElement>('restore-form').addEventListener('submit', (event) => {
 });
 byId<HTMLSelectElement>('adapter-select').addEventListener('change', updateAdapter);
 byId<HTMLButtonElement>('copy-adapter').addEventListener('click', (event) => void copyText(ADAPTERS[byId<HTMLSelectElement>('adapter-select').value] ?? '', event.currentTarget as HTMLButtonElement, 'Copy adapter'));
-initializeLicense();
+
+function startDemo(): void {
+  const banner = byId<HTMLElement>('demo-banner');
+  banner.hidden = false;
+  document.body.classList.add('demo-mode');
+  document.title = 'Demo — Gesture Replay Kit';
+  document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.setAttribute('href', 'https://gesture-game-replay.sociobot.in/demo');
+  try { localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify({ sample: 'anonymous-wave', startedAt: Date.now() })); } catch { /* The demo still works with storage disabled. */ }
+  byId<HTMLElement>('adapters').hidden = true;
+  setFixture(createSample(), sampleFixtureName);
+  setStatus('Demo sample loaded: 41 frames over 0:04.000. Reset restores this sample; Start for real clears this workspace.');
+
+  byId<HTMLButtonElement>('reset-demo').addEventListener('click', () => {
+    setFixture(createSample(), sampleFixtureName);
+    try { localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify({ sample: 'anonymous-wave', resetAt: Date.now() })); } catch { /* Storage is optional. */ }
+    setStatus('Demo reset. The 41-frame sample is ready to replay and compare.');
+  });
+  byId<HTMLAnchorElement>('start-real').addEventListener('click', () => {
+    try { localStorage.removeItem(DEMO_STORAGE_KEY); } catch { /* Storage is optional. */ }
+  });
+  const revealWorkbench = () => {
+    const workbench = byId<HTMLElement>('workbench');
+    const heading = byId<HTMLElement>('workbench-title');
+    const root = document.documentElement;
+    const priorScrollBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = 'auto';
+    heading.tabIndex = -1;
+    workbench.scrollIntoView({ behavior: 'auto', block: 'start' });
+    heading.focus({ preventScroll: true });
+    root.style.scrollBehavior = priorScrollBehavior;
+  };
+  window.requestAnimationFrame(revealWorkbench);
+  window.addEventListener('load', revealWorkbench, { once: true });
+}
+
+if (isDemo) startDemo();
+else initializeLicense();
 
 const offlineBanner = byId<HTMLDivElement>('offline-banner');
 function updateConnection(): void { offlineBanner.hidden = navigator.onLine; }

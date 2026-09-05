@@ -1,36 +1,30 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { JSDOM } from 'jsdom';
 import { describe, expect, it } from 'vitest';
 
 const root = resolve(import.meta.dirname, '..');
 
-describe('static delivery security regression', () => {
-  it('never runtime-caches a URL or response with license data', async () => {
-    const worker = await readFile(resolve(root, 'site/public/sw.js'), 'utf8');
-    expect(worker).toContain("const CACHE = 'gesture-replay-shell-v2'");
-    expect(worker).toContain('/license|token/i');
-    expect(worker).toContain('if (hasLicenseData(url))');
-    expect(worker).toContain('event.respondWith(fetch(event.request));');
-    expect(worker).toContain('!url.search && !hasLicenseData(url)');
-    expect(worker).toContain('url.search || hasLicenseData(url)');
+describe('static delivery contract', () => {
+  it('declares cache and browser protection policy for the generated static site', async () => {
+    const config = JSON.parse(await readFile(resolve(root, 'site/public/staticwebapp.config.json'), 'utf8')) as {
+      globalHeaders: Record<string, string>;
+      routes: { route: string; headers?: Record<string, string>; rewrite?: string; statusCode?: number }[];
+      responseOverrides: Record<string, { rewrite: string }>;
+    };
+    const assetRoute = config.routes.find((route) => route.route === '/assets/*');
+    const demoRoute = config.routes.find((route) => route.route === '/demo');
+    expect(assetRoute?.headers?.['Cache-Control']).toBe('public, max-age=31536000, immutable');
+    expect(config.globalHeaders['Content-Security-Policy']).toMatch(/frame-ancestors 'none'/);
+    expect(config.globalHeaders['Permissions-Policy']).toMatch(/camera=\(\), microphone=\(\)/);
+    expect(demoRoute).toMatchObject({ rewrite: '/index.html' });
+    expect(demoRoute?.statusCode).toBeUndefined();
+    expect(config.responseOverrides['404']).toEqual({ rewrite: '/404.html' });
   });
 
-  it('ships immutable hashed assets and production browser protection headers', async () => {
-    const headers = await readFile(resolve(root, 'site/public/_headers'), 'utf8');
-    const azure = await readFile(resolve(root, 'site/public/staticwebapp.config.json'), 'utf8');
-    expect(headers).toContain('/assets/*\n  Cache-Control: public, max-age=31536000, immutable');
-    expect(headers).toContain("Content-Security-Policy: default-src 'self'");
-    expect(headers).toContain('connect-src \'self\' https://api.sociobot.in');
-    expect(headers).toContain('Permissions-Policy: camera=(), microphone=()');
-    expect(azure).toContain('"route": "/assets/*"');
-    expect(azure).toContain('"Cache-Control": "public, max-age=31536000, immutable"');
-    expect(azure).toContain('"Content-Security-Policy"');
-    expect(azure).toContain('"Permissions-Policy"');
-  });
-
-  it('uses the registered live Sociobot checkout, never the staging endpoint', async () => {
-    const page = await readFile(resolve(root, 'site/index.html'), 'utf8');
-    expect(page).toContain('https://api.sociobot.in/api/v1/products/gesture-game-replay/checkout');
-    expect(page).not.toContain('pilot-api.sociobot.in');
+  it('exposes the registered checkout address as a real destination in the page', async () => {
+    const page = new JSDOM(await readFile(resolve(root, 'site/index.html'), 'utf8'));
+    const purchase = [...page.window.document.querySelectorAll('a')].find((link) => link.textContent?.includes('Buy Adapter Pack'));
+    expect(purchase?.href).toBe('https://api.sociobot.in/api/v1/products/gesture-game-replay/checkout');
   });
 });

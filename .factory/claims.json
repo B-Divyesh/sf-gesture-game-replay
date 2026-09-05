@@ -1,0 +1,114 @@
+[
+  {
+    "id": "replay-and-compare",
+    "claim": "The demo replays a 41-frame landmark trace and compares gesture rules.",
+    "where": "Demo workbench, landing page",
+    "test": "npm test -- --testNamePattern @claim:replay-and-compare",
+    "sandbox": "Fresh browser context at /demo; play the shipped trace and change a rule threshold."
+  },
+  {
+    "id": "no-video-retention",
+    "claim": "The workbench rejects video files and does not retain them.",
+    "where": "Landing page, privacy page",
+    "test": "npm test -- --testNamePattern @claim:no-video-retention",
+    "sandbox": "Fresh /demo context; try an MP4 import and confirm the loaded sample remains usable."
+  },
+  {
+    "id": "no-pixels",
+    "claim": "The sample flow does not access camera pixels.",
+    "where": "Landing page, privacy page",
+    "test": "npm test -- --testNamePattern @claim:no-pixels",
+    "sandbox": "Fresh /demo context with getUserMedia instrumented; replay the sample."
+  },
+  {
+    "id": "no-account",
+    "claim": "A visitor can replay the sample without an account.",
+    "where": "README demo section",
+    "test": "npm test -- --testNamePattern @claim:no-account",
+    "sandbox": "Fresh /demo context; complete first replay and record navigation requests."
+  },
+  {
+    "id": "local-json",
+    "claim": "Imported fixture JSON stays out of persistent real-data storage.",
+    "where": "Workbench, privacy page",
+    "test": "npm test -- --testNamePattern @claim:local-json",
+    "sandbox": "Fresh /demo context seeded with a real-data sentinel; import a fixture and inspect browser storage."
+  },
+  {
+    "id": "no-upload",
+    "claim": "Replaying and exporting the sample does not upload data.",
+    "where": "Workbench, privacy page",
+    "test": "npm test -- --testNamePattern @claim:no-upload",
+    "sandbox": "Fresh /demo context; export the sample while recording every request."
+  },
+  {
+    "id": "no-video-import",
+    "claim": "The import control accepts JSON fixtures, not video.",
+    "where": "Workbench",
+    "test": "npm test -- --testNamePattern @claim:no-video-import",
+    "sandbox": "Fresh /demo context; inspect the browser-visible file chooser constraints."
+  },
+  {
+    "id": "scrubbed-export",
+    "claim": "Scrubbed export normalizes time and removes source metadata.",
+    "where": "Workbench, README",
+    "test": "npm test -- --testNamePattern @claim:scrubbed-export",
+    "sandbox": "Fresh /demo context; download and parse the shipped sample export."
+  },
+  {
+    "id": "typed-module-entries",
+    "claim": "The package ships typed ESM and CommonJS entry points.",
+    "where": "Landing page, README",
+    "test": "npm test -- --testNamePattern @claim:typed-module-entries",
+    "sandbox": "Fresh temporary consumer; pack, install, run ESM and CommonJS, and type-check an import."
+  },
+  {
+    "id": "zero-runtime-dependencies",
+    "claim": "The published package has zero runtime dependencies.",
+    "where": "Landing page, README",
+    "test": "npm test -- --testNamePattern @claim:zero-runtime-dependencies",
+    "sandbox": "Fresh packed artifact; inspect its published package manifest."
+  },
+  {
+    "id": "deterministic-results",
+    "claim": "Replay and rule comparison return the same result for the same fixture.",
+    "where": "Landing page, README",
+    "test": "npm test -- --testNamePattern @claim:deterministic-results",
+    "sandbox": "Shipped fixture data; run replay and comparison twice."
+  },
+  {
+    "id": "bridge-validation",
+    "claim": "The bridge accepts only validated messages from the trusted detector window.",
+    "where": "Workbench, README",
+    "test": "npm test -- --testNamePattern @claim:bridge-validation",
+    "sandbox": "Unit sandbox sends trusted, foreign, and malformed bridge payloads."
+  },
+  {
+    "id": "license-safety",
+    "claim": "A returned license is verified before storage and is not cached by the service worker.",
+    "where": "README, privacy page",
+    "test": "npm test -- --testNamePattern @claim:license-safety",
+    "sandbox": "Fresh browser context with a delayed invalid verification response and Cache Storage inspection."
+  },
+  {
+    "id": "offline-workbench",
+    "claim": "The demo workbench reloads offline after the first visit.",
+    "where": "README, offline notice",
+    "test": "npm test -- --testNamePattern @claim:offline-workbench",
+    "sandbox": "Dedicated fresh browser context; warm /demo, set offline, reload, and use export."
+  },
+  {
+    "id": "no-telemetry-or-cdn",
+    "claim": "The demo uses no telemetry, cloud storage, camera access, or runtime CDN.",
+    "where": "README, privacy page",
+    "test": "npm test -- --testNamePattern @claim:no-telemetry-or-cdn",
+    "sandbox": "Fresh /demo context; record all normal-path request origins during playback."
+  },
+  {
+    "id": "free-core",
+    "claim": "Replay, rule comparison, and scrubbed export are free to use.",
+    "where": "Landing page, Adapter Pack section",
+    "test": "npm test -- --testNamePattern @claim:free-core",
+    "sandbox": "Fresh /demo context; replay and export without a checkout request."
+  }
+]

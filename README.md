@@ -1,8 +1,10 @@
 # Gesture Replay Kit
 
-Record landmarks, not people. Gesture Replay Kit is a tiny, dependency-free TypeScript library and local viewer for makers tuning webcam-controlled games and classroom toys. It turns MediaPipe-style pose/hand results into deterministic, shareable fixtures without retaining camera frames.
+Gesture Replay Kit helps game and classroom-toy makers replay landmark traces and tune gesture rules without keeping video. It is a TypeScript library with a local browser viewer for MediaPipe-style pose and hand results.
 
-The free library includes recording, validation, replay, rule evaluation, comparison, and privacy-scrubbed JSON export. The local viewer at <https://gesture-game-replay.sociobot.in> imports those fixtures, visualizes confidence and occlusion, compares thresholds, and keeps all trace data in your browser tab.
+Try the [41-frame sample sandbox](https://gesture-game-replay.sociobot.in/demo) first. It opens without an account and shows a populated workbench. You can replay a wave, compare two rules, and export a scrubbed fixture. Demo data uses a separate `demo:` browser-storage namespace and never becomes real workbench data.
+
+The free library records landmarks, validates fixtures, replays frames, compares rules, and exports scrubbed JSON. The local viewer at <https://gesture-game-replay.sociobot.in> imports those fixtures, shows confidence and occlusion, and compares thresholds. Fixture data stays in browser-tab memory.
 
 ## Install
 
@@ -14,7 +16,7 @@ Requires an evergreen browser or Node.js 18+. The package ships ESM, CommonJS, a
 
 ## Record a fixture
 
-Pass only the landmark arrays returned by your detector. The recorder never accepts or stores video frames.
+Pass only the landmark arrays returned by your detector. The recorder does not accept or store video frames.
 
 ```ts
 import { LandmarkRecorder } from 'gesture-game-replay';
@@ -30,7 +32,7 @@ const fixture = recorder.stop(1_032);
 
 ## Replay and compare rules
 
-Rules compare normalized landmark coordinates (`0…1`) or confidence values. `holdForMs` removes one-frame spikes; results are deterministic for the same fixture and rule.
+Rules compare normalized landmark coordinates (`0…1`) or confidence values. `holdForMs` removes one-frame spikes. The same fixture and rule return the same result.
 
 ```ts
 import { compareRules, frameAt } from 'gesture-game-replay';
@@ -84,7 +86,7 @@ npm pack            # ready-to-publish tarball; factory owns publishing
 npm run dev         # local viewer
 ```
 
-The documented examples are covered by tests. No telemetry, cloud storage, camera access, or runtime CDN is used. See [privacy](https://gesture-game-replay.sociobot.in/privacy/) and [terms](https://gesture-game-replay.sociobot.in/terms/).
+`npm test` builds the site and runs unit, browser-sandbox, and packed-consumer checks. Every public product claim is listed in [`.factory/claims.json`](.factory/claims.json) and can be run independently with its documented command. No telemetry, cloud storage, camera access, or runtime CDN is used. See [privacy](https://gesture-game-replay.sociobot.in/privacy/) and [terms](https://gesture-game-replay.sociobot.in/terms/).
 
 ## Viewer bridge and Adapter Pack
 

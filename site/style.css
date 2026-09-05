@@ -112,7 +112,7 @@ h2 {
 h1 {
   font-size: clamp(2.75rem, 7vw, 4.75rem);
   margin-bottom: 24px;
-  max-width: 11ch;
+  max-width: 14ch;
 }
 h1 em {
   color: #b94130;
@@ -160,6 +160,33 @@ h3 {
   color: var(--ink);
   padding: 8px 20px;
   text-align: center;
+  font-weight: bold;
+}
+.demo-banner {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px max(20px, calc((100% - 1160px) / 2));
+  background: var(--mustard);
+  border-bottom: 2px solid var(--ink);
+  color: var(--ink);
+}
+.demo-banner p {
+  margin: 0;
+}
+.demo-banner div {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+.demo-banner a,
+.demo-banner .text-button {
+  color: var(--ink);
   font-weight: bold;
 }
 .site-header {
@@ -235,6 +262,12 @@ h3 {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+}
+.action-note {
+  align-self: center;
+  max-width: 29ch;
+  color: var(--ink-soft);
+  font-size: 0.94rem;
 }
 .button,
 .icon-button,
@@ -339,6 +372,14 @@ h3 {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+.privacy-strip h2 {
+  margin: 0;
+  color: #ffe8a6;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  letter-spacing: 0;
+  line-height: 1.3;
 }
 .privacy-strip strong {
   color: #ffe8a6;
@@ -874,6 +915,14 @@ h3 {
   gap: 8px;
   margin: 0;
 }
+.site-footer .footer-meta {
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  white-space: nowrap;
+}
+.not-found {
+  padding-block: 32px;
+}
 .legal-page {
   min-height: calc(100vh - 194px);
   padding-block: 70px;
@@ -973,15 +1022,21 @@ h3 {
   .site-header nav a {
     white-space: nowrap;
   }
-  .site-header nav a:last-child {
-    display: none;
-  }
   .hero {
     padding-block: 42px 58px;
     gap: 34px;
   }
   .hero-actions {
     display: grid;
+  }
+  .action-note {
+    padding-left: 2px;
+  }
+  .demo-banner {
+    align-items: flex-start;
+    padding: 10px 12px;
+    flex-direction: column;
+    gap: 6px;
   }
   .hero-art figcaption {
     position: relative;

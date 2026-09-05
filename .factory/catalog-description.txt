@@ -1,0 +1,1 @@
+Replay landmark traces to tune gesture rules without keeping video.

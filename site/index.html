@@ -4,10 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f7f0df" />
-    <meta name="description" content="Record landmark traces, replay gestures, and compare deterministic rules without retaining video." />
-    <title>Gesture Replay Kit — tune gestures without keeping video</title>
+    <meta name="description" content="Replay landmark traces and compare gesture rules without keeping player video." />
+    <meta property="og:title" content="Gesture Replay Kit — replay landmark traces" />
+    <meta property="og:description" content="Replay landmark traces and compare gesture rules without keeping player video." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://gesture-game-replay.sociobot.in/" />
+    <meta property="og:image" content="https://gesture-game-replay.sociobot.in/social-paper-stage.webp" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Gesture Replay Kit — replay landmark traces" />
+    <meta name="twitter:description" content="Replay landmark traces and compare gesture rules without keeping player video." />
+    <meta name="twitter:image" content="https://gesture-game-replay.sociobot.in/social-paper-stage.webp" />
+    <title>Gesture Replay Kit — replay landmark traces</title>
     <link rel="canonical" href="https://gesture-game-replay.sociobot.in/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/assets/fonts/atkinson-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/assets/fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin />
     <script type="module" src="/app.ts"></script>
@@ -15,36 +27,40 @@
   <body>
     <a class="skip-link" href="#main">Skip to main content</a>
     <div id="offline-banner" class="offline-banner" role="status" hidden>You’re offline. Imported fixtures and the full free workbench still work; license checks will resume later.</div>
+    <aside id="demo-banner" class="demo-banner" aria-label="Demo controls" hidden>
+      <p><strong>Demo — sample data, nothing is saved</strong><span> You are using a separate sample workspace.</span></p>
+      <div><button id="reset-demo" class="text-button" type="button">Reset demo</button><a href="/" id="start-real">Start for real</a></div>
+    </aside>
     <header class="site-header">
       <a class="brand" href="/" aria-label="Gesture Replay Kit home"><span aria-hidden="true" class="brand-pin"></span>Gesture Replay Kit</a>
       <nav aria-label="Primary navigation">
-        <a href="#workbench">Workbench</a><a href="#api">API</a><a href="#adapters">Adapter Pack</a><a href="https://github.com/B-Divyesh/sf-gesture-game-replay">GitHub</a>
+        <a href="/demo">Demo</a><a href="#workbench">Workbench</a><a href="#api">API</a><a href="/privacy/">Privacy</a>
       </nav>
     </header>
 
     <main id="main">
       <section class="hero shell" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <p class="eyebrow">A motion lab without the footage</p>
-          <h1 id="hero-title">Replay the gesture.<br /><em>Not the person.</em></h1>
-          <p class="hero-lede">Capture pose and hand landmarks, reproduce a missed move, then compare threshold rules frame by frame—all locally, with no video retained.</p>
+          <p class="eyebrow">Local gesture testing</p>
+          <h1 id="hero-title">Replay landmark traces to tune gesture rules</h1>
+          <p class="hero-lede">For game and classroom-toy makers who need to fix missed moves without keeping player video.</p>
           <div class="hero-actions">
-            <a class="button primary" href="#workbench">Open the workbench</a>
-            <button class="button paper" type="button" data-action="load-sample">Load example trace</button>
+            <a class="button primary" href="/demo">Try it with sample data</a>
+            <span class="action-note">Loads a 41-frame wave trace to replay and compare.</span>
           </div>
           <ul class="privacy-chips" aria-label="Privacy properties">
-            <li>Pixels never enter</li><li>No account</li><li>JSON stays local</li>
+            <li>No video input</li><li>Works offline after first visit</li><li>Free replay and export</li>
           </ul>
         </div>
         <figure class="hero-art">
           <img src="/assets/hero-paper-stage.webp" width="1200" height="800" fetchpriority="high" alt="An anonymous jointed paper figure rehearsing on a layered stage beside two colored motion paths." />
-          <figcaption>Movements become test fixtures—not recordings.</figcaption>
+          <figcaption>Sample landmarks shown as a paper figure and rule paths.</figcaption>
         </figure>
       </section>
 
-      <section class="privacy-strip" aria-label="Privacy reminder">
+      <section class="privacy-strip" aria-labelledby="privacy-title">
         <div class="shell">
-          <strong>Landmarks are not anonymous.</strong>
+          <h2 id="privacy-title">What the viewer does not do</h2>
           <span>Get consent, collect only what the game needs, and delete fixtures when the test is done.</span>
           <a href="/privacy/">Read the privacy note</a>
         </div>
@@ -52,7 +68,7 @@
 
       <section id="workbench" class="workbench shell" aria-labelledby="workbench-title">
         <div class="section-heading">
-          <div><p class="eyebrow">Local fixture workbench</p><h2 id="workbench-title">Put a trace on the stage</h2></div>
+          <div><p class="eyebrow">Local fixture workbench</p><h2 id="workbench-title">Replay a landmark trace</h2></div>
           <p>Import <code>gesture-replay/v1</code> JSON, use the example, or record landmark messages from your app. Nothing uploads.</p>
         </div>
 
@@ -65,7 +81,7 @@
             <div class="tool-actions">
               <label class="button compact paper" for="fixture-file">Import JSON</label>
               <input id="fixture-file" class="visually-hidden" type="file" accept="application/json,.json" />
-              <button class="button compact paper" type="button" data-action="load-sample">Use example</button>
+              <button class="button compact paper" type="button" data-action="load-sample">Load sample trace</button>
               <button id="record-button" class="button compact paper" type="button" aria-describedby="bridge-help">Record bridge</button>
               <button id="export-button" class="button compact primary" type="button" disabled>Export scrubbed</button>
               <button id="delete-button" class="icon-button" type="button" disabled aria-label="Delete current fixture" title="Delete current fixture">×</button>
@@ -84,7 +100,7 @@ viewer.postMessage({
             <div class="empty-figure" aria-hidden="true"><i></i><b></b><span></span></div>
             <h3>Bring a landmark trace</h3>
             <p>Drop a JSON fixture here or load the anonymous example. Raw video is neither requested nor supported.</p>
-            <button class="button primary" type="button" data-action="load-sample">Load example trace</button>
+            <button class="button primary" type="button" data-action="load-sample">Load sample trace</button>
           </div>
 
           <div id="loaded-state" class="replay-layout" hidden>
@@ -154,11 +170,11 @@ viewer.postMessage({
       </section>
 
       <section id="api" class="api-section shell" aria-labelledby="api-title">
-        <div class="section-heading"><div><p class="eyebrow">Tiny public surface</p><h2 id="api-title">From detector output to regression fixture</h2></div><p>Typed ESM + CommonJS. Zero runtime dependencies. The format is open and versioned.</p></div>
+        <div class="section-heading"><div><p class="eyebrow">How it works</p><h2 id="api-title">Replay a fixture in three steps</h2></div><p>Typed ESM and CommonJS entries have no runtime dependencies.</p></div>
         <ol class="api-steps">
-          <li><span>1</span><h3>Record</h3><p>Feed timestamped pose or hand arrays into <code>LandmarkRecorder</code>. Video is not a valid input.</p></li>
-          <li><span>2</span><h3>Reproduce</h3><p>Use <code>frameAt</code> and <code>ReplayClock</code> for deterministic time and speed.</p></li>
-          <li><span>3</span><h3>Compare</h3><p>Evaluate threshold rules with hold time and inspect every disagreement interval.</p></li>
+          <li><span>1</span><h3>Record landmarks</h3><p>Send timestamped pose or hand arrays to <code>LandmarkRecorder</code>. Video is not an input.</p></li>
+          <li><span>2</span><h3>Replay a frame</h3><p>Use <code>frameAt</code> and <code>ReplayClock</code> for repeatable time and speed.</p></li>
+          <li><span>3</span><h3>Compare rules</h3><p>Check threshold rules with hold time and inspect disagreement intervals.</p></li>
         </ol>
         <div class="install-row"><code>npm install gesture-game-replay</code><button id="copy-install" class="button paper compact" type="button">Copy install command</button><a href="https://github.com/B-Divyesh/sf-gesture-game-replay#readme">Read the API guide →</a></div>
       </section>
@@ -189,8 +205,9 @@ viewer.postMessage({
     </main>
 
     <footer class="site-footer shell">
-      <p><span class="brand-pin" aria-hidden="true"></span><strong>Gesture Replay Kit</strong> · open format, local-first viewer.</p>
-      <nav aria-label="Legal"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-gesture-game-replay">Source</a></nav>
+      <p><span class="brand-pin" aria-hidden="true"></span><strong>Gesture Replay Kit</strong> replays local landmark fixtures without video.</p>
+      <nav aria-label="Footer"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="https://github.com/B-Divyesh/sf-gesture-game-replay">Source</a></nav>
+      <p class="footer-meta">Built by Param Factory · v0.1.0</p>
     </footer>
   </body>
 </html>
