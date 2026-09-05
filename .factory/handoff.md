@@ -1,139 +1,54 @@
-# Gesture Replay Kit — repair 2 handoff
+# Gesture Replay Kit — verification 3 handoff
 
 ## Release status
 
-**PASS — deployed and verified.**
+**FAIL — 3 findings, including one privacy boundary defect, and 7 untested or
+incompletely tested public claims.**
 
-- Implementation commit: `d10ecb6de53d58928559ea347a481b4069b566c3`
-- Verification documentation commit: `afb935b1f19e793549a127d6c335dc9c75c27fde`
-- Previous reviewed implementation: `7a58a7ece680e2bb8b2529c458f61a8ac84360e5`
-- Previous report/documentation commit: `5081d39f8181e98075f2398498980b6c3824f991`
+- Implementation reviewed: `d10ecb6de53d58928559ea347a481b4069b566c3`
+- Documentation reviewed: `4aea9aec7b51f829764ac646da819a13b6fd5278`
 - Live URL: <https://gesture-game-replay.sociobot.in/>
-- Static artifact deployed: `dist/site/` on 2026-09-05
+- Full report: `.factory/verification-3.md`
 
-The job is to replay recorded pose or hand landmark traces, compare gesture
-rules, and export a scrubbed fixture without retaining video. It serves indie
-game and classroom-toy makers who tune webcam-input games.
+The live deployment matches the implementation candidate byte-for-byte for the
+root, demo shell, service worker, 404, main JS, and main CSS.
 
-The landing-page first screen now states that job, names the audience, and
-starts with **Try it with sample data**. It says that clicking loads a
-41-frame wave trace to replay and compare.
+## What passed
 
-## What changed
+- Fresh `npm ci`, production audit, all 31 tests, typecheck, build, pack, and
+  clean packed-consumer checks.
+- Every one of the 16 declared claim commands passed independently.
+- Fresh desktop and phone sample flows, demo isolation/reset/exit, scrubbed
+  export, malformed-file recovery, delete recovery, invalid-license recovery,
+  keyboard controls, reduced motion, 200% text sizing, offline reload, links,
+  legal routes, response headers, and designed HTTP 404.
+- Factory URL verification and Playwright axe checks passed with no automated
+  WCAG A/AA/2.1 AA violations.
+- Lighthouse mobile completed: performance 100, accessibility 100, best
+  practices 100, SEO 100; LCP 1.36 s, CLS 0, TBT 23 ms.
+- Build budgets: JS 25.19 kB (9.42 kB gzip), CSS 17.55 kB (4.65 kB gzip),
+  fonts 52.72 kB, hero WebP 41.02 kB.
 
-- Added `.factory/claims.json` with 16 public claims, exactly one tagged,
-  outcome-based check per claim, and clean-consumer coverage for ESM, CommonJS,
-  declarations, and zero runtime dependencies.
-- The in-page viewer now bundles the package’s own public `gesture-game-replay`
-  entry point after building `dist/lib`; it no longer reaches into `src/`.
-- Added `/demo`, which immediately opens a populated 41-frame sample workbench.
-  The persistent **Demo — sample data, nothing is saved** banner includes
-  reset and exit controls. Demo state uses only
-  `demo:gesture-game-replay:session`; it skips license initialization and
-  never reads or writes real-workbench fixture data. See `.factory/demo.md`.
-- Fixed reduced-motion replay by accumulating sub-100 ms animation deltas and
-  moving time in 100 ms steps. Playback no longer freezes.
-- Added a styled, deliberate HTTP 404 page plus a Static Web Apps response
-  override. `/does-not-exist` returns HTTP 404, its own title, one h1, and
-  home/demo links.
-- Rewrote first-screen copy and added `.factory/copy-audit.md`.
-- Added route-specific social metadata, Twitter metadata, 1200×630 social art,
-  Apple touch icon, Demo/Privacy header links, and the standard Param Factory
-  footer with version ID on every page.
-- Kept the prior bridge validation, license-cache guard, immutable assets,
-  CSP, and camera/microphone Permissions-Policy protections intact. The service
-  worker cache is now v3 and includes the offline demo shell.
+## Findings to repair
 
-The social image and Apple icon are crops of the product’s existing original
-paper-diorama artwork; provenance is recorded in `.factory/design.md`.
+1. **High:** `parseFixture()` permits and round-trips arbitrary fields. The
+   live viewer accepted JSON carrying `video`, a name, a device ID, and a face
+   descriptor, contrary to the format and privacy copy.
+2. **High:** seven public promises are absent from the claims manifest or only
+   partly asserted by their tagged test. See the report for the exact list.
+3. **Medium:** several phone controls are below the required 44 × 44 px target,
+   including demo controls, header links, **Show code**, and the replay range.
 
-## Verification
+## Evidence
 
-From a separate clean clone of `7626102`:
+Detailed logs, screenshots, browser results, Lighthouse JSON, and privacy/input
+probes are under `/work/.evidence/gesture-game-replay-verify-3/`. The required
+copies are `/work/.evidence/qa-report.md` and
+`/work/.evidence/qa-result.json`.
 
-```bash
-npm ci
-npm audit --omit=dev --audit-level=high
-npm test
-npm run typecheck
-npm run build
-npm pack --dry-run
-```
+## Next steps
 
-All passed: audit had zero vulnerabilities; `npm test` passed 31 tests; build
-produced `dist/lib` and `dist/site`; the package dry run contained 9 files,
-9.4 KB compressed / 45.4 KB unpacked. The clean consumer test installed the
-tarball and exercised ESM, CommonJS, and TypeScript imports.
-
-Every command declared in `.factory/claims.json` was then run independently
-from that clean clone. All 16 passed. The browser checks use new contexts;
-the offline claim uses a dedicated context, warms `/demo`, calls
-`setOffline(true)`, reloads, and exports the sample.
-
-Local and live browser checks covered normal sample replay, malformed/video
-import recovery, scrubbed download parsing, demo reset/exit isolation,
-keyboard controls, 390×844 layout, reduced motion, offline demo reload,
-outbound-request recording, and 404. `verify-url.sh` passed live with title,
-`lang=en`, one h1, main landmark, image alt text, labelled buttons, and no
-root-page console/page errors. Playwright axe checks found zero WCAG 2 A/AA/
-2.1 AA violations on live desktop root, live phone demo, and the 404 page.
-
-Live evidence:
-
-- `/`, `/demo`, `/privacy/`, and `/terms/` return 200 with their intended
-  titles. `/does-not-exist` returns a designed HTTP 404. Chromium reports the
-  expected failed-document 404 console resource message for that deliberate
-  status; it is not a product error.
-- Fresh phone demo loaded `Sample — anonymous-wave.fixture.json`, reached
-  frame 6 under normal playback, had no horizontal overflow, and sent requests
-  only to the product origin. Reduced-motion playback reached `0:00.600`.
-- After service-worker activation, an offline `/demo` reload restored frame 1
-  and left **Export scrubbed** enabled.
-- CSP, Permissions-Policy, Referrer-Policy, and nosniff headers are live;
-  hashed assets have `public, max-age=31536000, immutable`.
-- Current direct budgets: initial JS 25.19 KB (9.42 KB gzip), CSS 17.55 KB
-  (4.65 KB gzip), self-hosted fonts 52.72 KB, hero image 41.02 KB, and social
-  card image 30.71 KB. The Lighthouse CLI could not complete in this runner
-  because the bundled Chromium tab crashed; no new Lighthouse score is claimed.
-
-The active paid offer remains the live **Adapter Pack — $19 one-time** offer.
-Its checkout endpoint returned its expected hosted-checkout redirect. Public
-offer metadata is at `/work/.evidence/billing-offer.json`; no payment or
-provider credential is stored in this repository.
-
-## Earlier findings disposition
-
-| Finding | Current disposition |
-| --- | --- |
-| Claims manifest and proof missing | Resolved: 16 manifest entries and independently runnable tagged outcome tests. |
-| Sample was not an isolated sandbox | Resolved: direct `/demo`, sample banner, reset/exit, namespace, docs, and isolation checks. |
-| Reduced-motion replay froze | Resolved: accumulated stepped clock regression test passes locally and live. |
-| Unknown URL showed landing page | Resolved: response override serves the styled 404 with HTTP 404. |
-| First screen and copy audit failed | Resolved: job/audience/action/facts wording and audited terminology. |
-| Social metadata/footer structure missing | Resolved on root, legal pages, and 404. |
-| Bridge message validation | Still resolved; trusted/malformed outcomes are tested. |
-| License cache and pre-verification storage | Still resolved; delayed-invalid-token and Cache Storage test passes. |
-| Immutable caching, CSP, Permissions-Policy | Still resolved and confirmed against live HTTPS headers. |
-
-## Publish and deploy
-
-```bash
-npm ci
-npm test
-npm run build
-npm pack
-```
-
-Publish `dist/site/` as the static web root. `npm pack` produces the
-ready-to-publish library artifact; registry publication remains factory-owned.
-
-## Known limits
-
-- The product deliberately consumes landmarks only. It does not provide camera
-  inference, video handling, identity recognition, face identification, or age
-  estimation.
-- The Adapter Pack is a licensed snippet pack, not detector models or cloud
-  fixture storage.
-- A fresh Lighthouse score is not recorded because this runner’s Chromium tab
-  crashed. Direct asset budgets and browser accessibility/performance-path
-  checks are recorded above.
+Strictly allowlist fixture keys or strip unknown values on parse, add complete
+tagged coverage for every public claim, enlarge the affected touch targets,
+then rebuild, deploy, and independently reverify. Product code was not changed
+in this verification work order.
