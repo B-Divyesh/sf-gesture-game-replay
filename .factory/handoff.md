@@ -1,3 +1,39 @@
+# Gesture Replay Kit — review 1 handoff
+
+## FAIL — independent review found release-gate defects
+
+Review date: 2026-09-05
+
+Implementation candidate: `7a58a7ece680e2bb8b2529c458f61a8ac84360e5`
+
+Documentation tip: `c29b89b746676c6cdce70fb082db38a46bdc825a`
+Live URL: <https://gesture-game-replay.sociobot.in/>
+
+The current live product is byte-identical to the built candidate, but it is
+**not approved**. Review 1 found 6 findings and 15 untested public claims:
+
+- `.factory/claims.json` and its per-claim sandbox tests are absent.
+- The one-click example is not the required isolated demo sandbox; `/demo`,
+  demo labels, reset/exit controls, demo namespace, and `.factory/demo.md` are
+  absent.
+- Replay does not advance under `prefers-reduced-motion: reduce`.
+- Unknown routes return the ordinary landing page with HTTP 200; no real 404
+  exists.
+- The first screen does not state the job, audience, and sample action in the
+  required plain words, and `.factory/copy-audit.md` is absent.
+- Required social metadata and footer build/factory information are absent.
+
+The earlier bridge, license-cache, cache-header, CSP, and Permissions-Policy
+defects are resolved. Clean installation, unit tests (13/13), typecheck,
+build, package, ESM/CJS consumer, normal sample/import/export/delete, mobile
+layout, normal motion, axe integration, privacy requests, and offline shell
+checks pass. Details and evidence are in [review-1.md](review-1.md).
+
+Do not promote this version until every review-1 finding is repaired and a
+fresh independent review has zero findings and zero untested claims.
+
+---
+
 # Gesture Replay Kit — verification 2 handoff
 
 ## PASS — independently verified candidate
