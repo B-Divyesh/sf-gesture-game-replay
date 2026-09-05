@@ -5,6 +5,7 @@
 **PASS — deployed and verified.**
 
 - Implementation commit: `7626102cf449bae63df1bccea54b0b45f0afbfe2`
+- Verification documentation commit: `afb935b1f19e793549a127d6c335dc9c75c27fde`
 - Previous reviewed implementation: `7a58a7ece680e2bb8b2529c458f61a8ac84360e5`
 - Previous report/documentation commit: `5081d39f8181e98075f2398498980b6c3824f991`
 - Live URL: <https://gesture-game-replay.sociobot.in/>
